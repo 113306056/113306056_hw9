@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>最大可提取價值 MEV｜機制解剖室</title>
+  <meta name="description" content="誰決定區塊裡的交易順序，誰就能從中賺錢：MEV 的供應鏈與風險。">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@500;700&display=swap">
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="../index.html">機制解剖室</a>
+    <nav><a href="../index.html">所有標本</a></nav>
+  </header>
+
+  <main class="page">
+    <header class="specimen-head">
+      <h1>最大可提取價值 MEV</h1>
+      <p class="metaphor">區塊像一場座位有限的演唱會，入場順序可以被標價，願意付最高價的人就能排在你前面。</p>
+      <p class="lede">MEV（Maximal Extractable Value）指的是透過決定哪些交易進入區塊、以及它們的順序，所能取得的額外價值，不包含一般的區塊獎勵與手續費。這個詞早期叫 Miner Extractable Value，以太坊轉為權益證明後改稱 Maximal。它同時包含對市場有幫助的行為（套利、清算）與直接傷害使用者的行為（三明治攻擊）。</p>
+      <dl class="specimen-card">
+        <div><dt>類別</dt><dd>區塊鏈基礎設施</dd></div>
+        <div><dt>難度</dt><dd>進階</dd></div>
+        <div><dt>資訊截止日</dt><dd>2026-11-15</dd></div>
+        <div><dt>最後更新</dt><dd>2026-11-15</dd></div>
+      </dl>
+    </header>
+
+    <nav class="toc" aria-label="本頁目錄">
+      <ul>
+        <li><a href="#flow">流程圖</a></li>
+        <li><a href="#roles">角色</a></li>
+        <li><a href="#risks">風險</a></li>
+        <li><a href="#myths">常見誤解</a></li>
+        <li><a href="#refs">延伸閱讀</a></li>
+      </ul>
+    </nav>
+
+    <div class="content">
+
+      <section class="block" id="flow">
+        <h2>流程圖</h2>
+        <ul class="legend">
+          <li class="l-user">使用者</li>
+          <li class="l-protocol">協議或交易所</li>
+          <li class="l-bot">套利者或機器人</li>
+          <li class="l-infra">基礎設施</li>
+        </ul>
+        <ol class="flow">
+          <li class="flow-step" data-actor="user">
+            <span class="actor">使用者</span>
+            <h3>送出交易，例如在 DEX 換幣</h3>
+            <p>使用者設定可接受的滑點。交易可能先進入公開的待處理池（mempool），也可能走私有通道直接送給建構者。</p>
+          </li>
+          <li class="flow-step" data-actor="bot">
+            <span class="actor">搜尋者</span>
+            <h3>掃描機會，打包成 bundle</h3>
+            <p>搜尋者（searcher）是專門找 MEV 機會的機器人，找到套利、清算或夾擊的機會後，把自己的交易與目標交易包成 bundle，並附上小費。</p>
+          </li>
+          <li class="flow-step" data-actor="infra">
+            <span class="actor">建構者</span>
+            <h3>組出最賺錢的區塊並出價</h3>
+            <p>區塊建構者（builder）挑選與排序交易，組成價值最高的區塊，再向提議者出價。</p>
+          </li>
+          <li class="flow-step" data-actor="infra">
+            <span class="actor">中繼器</span>
+            <h3>驗證區塊並居中轉交</h3>
+            <p>中繼器（relay）確認區塊有效，讓提議者看得到出價、但在簽署前看不到區塊內容。</p>
+          </li>
+          <li class="flow-step" data-actor="infra">
+            <span class="actor">提議者</span>
+            <h3>選擇最高出價的區塊簽署</h3>
+            <p>驗證者作為提議者（proposer）收下出價，簽署區塊。這套分工稱為提議者與建構者分離（PBS），在以太坊上目前主要透過 MEV-Boost 實作。</p>
+          </li>
+          <li class="flow-step" data-actor="user">
+            <span class="actor">使用者</span>
+            <h3>交易上鏈，結果可能比預期差</h3>
+            <p>如果交易被夾擊，成交價會落在滑點上限附近，差額就是被拿走的價值。</p>
+          </li>
+        </ol>
+      </section>
+
+      <section class="block" id="roles">
+        <h2>角色</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>角色</th><th>做什麼</th><th>賺什麼或承擔什麼</th></tr></thead>
+            <tbody>
+              <tr><td>使用者</td><td>送出交易</td><td>可能承受滑點與被夾擊的損失</td></tr>
+              <tr><td>搜尋者</td><td>找出可獲利的交易組合並提交</td><td>賺取機會利潤，但競爭激烈時要付出大量小費，一般說法是可能超過九成，確切比例待查證 <span class="verify">待查證</span></td></tr>
+              <tr><td>建構者</td><td>組出區塊並向提議者出價</td><td>賺取利潤差；擁有獨家私有交易來源的建構者具有競爭優勢</td></tr>
+              <tr><td>中繼器</td><td>居中驗證並轉交區塊</td><td>承擔信任與可用性責任</td></tr>
+              <tr><td>提議者（驗證者）</td><td>選擇區塊並簽署</td><td>取得出價，是供應鏈中分得最大一份的一方</td></tr>
+              <tr><td>錢包與 RPC 服務</td><td>決定交易走公開還是私有通道</td><td>影響使用者的交易被誰看見</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="block" id="risks">
+        <h2>風險</h2>
+        <ul class="risks">
+          <li><span class="tag tag-market">市場</span><div><p><strong>三明治攻擊</strong>攻擊者在你的交易前後各插入一筆，先推高價格再賣出，讓你以更差的價格成交，差額進了攻擊者口袋。滑點設得越寬，可被拿走的空間越大。</p></div></li>
+          <li><span class="tag tag-gov">治理</span><div><p><strong>建構者集中化</strong>少數建構者掌握大部分區塊時，會帶來審查與單點失靈的疑慮。市占率會變動，需看最新數據 <span class="verify">待查證</span>。</p></div></li>
+          <li><span class="tag tag-platform">平台</span><div><p><strong>私有通道需要信任</strong>把交易送給私有建構者，等於信任對方不會搶先交易或洩漏你的訂單。</p></div></li>
+          <li><span class="tag tag-contract">智能合約</span><div><p><strong>協議設計暴露機會</strong>清算機制、預言機更新與 AMM 定價規則都可能成為 MEV 的來源，設計不良會讓使用者長期被抽成。</p></div></li>
+        </ul>
+      </section>
+
+      <section class="block" id="myths">
+        <h2>常見誤解</h2>
+        <div class="myth">
+          <p class="wrong"><b>誤解</b>MEV 全部都是壞的，是在偷使用者的錢。</p>
+          <p class="right"><b>事實</b>套利讓不同市場的價格趨於一致，清算讓借貸協議維持償付能力，這些也屬於 MEV。但三明治攻擊這類行為確實直接損害使用者。</p>
+        </div>
+        <div class="myth">
+          <p class="wrong"><b>誤解</b>使用私有 RPC，就完全不會被 MEV 影響。</p>
+          <p class="right"><b>事實</b>私有提交改變的是誰能看到你的待處理交易，並不等於替你設好最低成交量。滑點上限仍然要自己設。</p>
+        </div>
+        <div class="myth">
+          <p class="wrong"><b>誤解</b>PBS 讓 MEV 消失了。</p>
+          <p class="right"><b>事實</b>PBS 是把「組區塊」與「提議區塊」分給不同角色，是把 MEV 的分配變得有秩序，並沒有消除它。</p>
+        </div>
+        <div class="myth">
+          <p class="wrong"><b>誤解</b>MEV 只存在於以太坊。</p>
+          <p class="right"><b>事實</b>只要區塊鏈支援智能合約、交易順序可被影響，就有類似的價值可以被提取，形式與規模則因鏈而異。</p>
+        </div>
+      </section>
+
+      <section class="block" id="refs">
+        <h2>延伸閱讀</h2>
+        <ol class="refs">
+          <li><a href="https://thedefiant.io/education/blockchains/what-is-maximal-extractable-value-mev">What is Maximal Extractable Value (MEV)?</a>，The Defiant，存取日 2026-11-15<span class="ref-note">MEV 的定義，以及 PBS、私有提交與最低成交量三者的差別。</span></li>
+          <li><a href="https://notes.ethereum.org/@RMFhKOrSSEWxmqjZMOT1Ag/rJb_cq8Co">MEV Resilient Ethereum</a>，Ethereum Research Notes，存取日 2026-11-15<span class="ref-note">搜尋者與建構者的半公開市場、mev-boost 的採用情況。</span></li>
+          <li><a href="https://www.spark.money/research/ethereum-mev-pbs-validator-economics">MEV and Proposer-Builder Separation: How Ethereum Validators Actually Make Money</a>，Spark，存取日 2026-11-15<span class="ref-note">供應鏈各角色與建構者集中化的討論。</span></li>
+          <li><a href="https://zerocap.com/insights/research-lab/maximal-extractable-value/">Maximal Extractable Value: Concepts, issues and solutions</a>，Zerocap，2023，存取日 2026-11-15<span class="ref-note">套利、清算、三明治攻擊與解方的整理。</span></li>
+        </ol>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>資訊截止日：2026-11-15。協議與交易所規則常變動，請以官方文件為準。</p>
+    <p>本站為課程學習紀錄，不構成任何投資建議。標示「待查證」的內容尚未取得可靠來源。</p>
+  </footer>
+</body>
+</html>

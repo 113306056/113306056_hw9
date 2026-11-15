@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Morpho 隔離式借貸市場 Morpho Blue｜機制解剖室</title>
+  <meta name="description" content="一個市場一對資產、規則建立後不能改：Morpho 的借貸設計與風險。">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@500;700&display=swap">
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="../index.html">機制解剖室</a>
+    <nav><a href="../index.html">所有標本</a></nav>
+  </header>
+
+  <main class="page">
+    <header class="specimen-head">
+      <h1>Morpho 隔離式借貸市場 Morpho Blue</h1>
+      <p class="metaphor">不是一座大水池，而是一排各自獨立、規則寫死的小水槽，某一個水槽破了，不會淹到隔壁。</p>
+      <p class="lede">Morpho 是一個鏈上借貸協議。它的底層（Morpho Blue，官方文件現在稱 Variable Rate Markets）讓每個市場只配一種抵押資產和一種借出資產，並在建立時固定五個參數。在這之上，還有由管理者（curator）幫存款人分配資金的 Vault 層。</p>
+      <dl class="specimen-card">
+        <div><dt>類別</dt><dd>借貸</dd></div>
+        <div><dt>難度</dt><dd>進階</dd></div>
+        <div><dt>資訊截止日</dt><dd>2026-11-15</dd></div>
+        <div><dt>最後更新</dt><dd>2026-11-15</dd></div>
+      </dl>
+    </header>
+
+    <nav class="toc" aria-label="本頁目錄">
+      <ul>
+        <li><a href="#flow">流程圖</a></li>
+        <li><a href="#roles">角色</a></li>
+        <li><a href="#risks">風險</a></li>
+        <li><a href="#myths">常見誤解</a></li>
+        <li><a href="#refs">延伸閱讀</a></li>
+      </ul>
+    </nav>
+
+    <div class="content">
+
+      <section class="block" id="flow">
+        <h2>流程圖</h2>
+        <ul class="legend">
+          <li class="l-user">使用者</li>
+          <li class="l-protocol">協議或交易所</li>
+          <li class="l-bot">套利者或機器人</li>
+          <li class="l-infra">基礎設施</li>
+        </ul>
+        <ol class="flow">
+          <li class="flow-step" data-actor="protocol">
+            <span class="actor">協議</span>
+            <h3>建立市場，固定五個參數</h3>
+            <p>市場由抵押資產、借出資產、清算貸款價值比（LLTV）、預言機、利率模型（IRM）組成，建立後不能更改。建立市場本身不需治理投票，但 LLTV 與 IRM 必須來自治理核准的選項。</p>
+          </li>
+          <li class="flow-step" data-actor="user">
+            <span class="actor">存款人</span>
+            <h3>存入借出資產，直接或經由 Vault</h3>
+            <p>存款人把資產放進市場賺利息，也可以存進 Vault，由管理者決定分配到哪些市場。</p>
+          </li>
+          <li class="flow-step" data-actor="user">
+            <span class="actor">借款人</span>
+            <h3>存入抵押品，借出資產</h3>
+            <p>借款人必須超額抵押。借得越接近 LLTV，離被清算就越近。</p>
+          </li>
+          <li class="flow-step" data-actor="protocol">
+            <span class="actor">協議</span>
+            <h3>利率模型計算利息</h3>
+            <p>利率由該市場綁定的 IRM 決定，常見例子是 AdaptiveCurveIRM，會依資金使用狀況調整借款利率。</p>
+          </li>
+          <li class="flow-step" data-actor="bot">
+            <span class="actor">清算者</span>
+            <h3>抵押品下跌，觸發清算</h3>
+            <p>借款價值超過 LLTV 時，任何人都能清算，並取得折價獎勵。獎勵比例依 LLTV 以公式計算，上限為 1.15 <span class="verify">待查證</span>。</p>
+          </li>
+          <li class="flow-step" data-actor="infra">
+            <span class="actor">預言機</span>
+            <h3>價格決定一切，壞帳留在該市場</h3>
+            <p>清算與否取決於預言機報價。若抵押品賣出後仍不足以還債，損失由這個市場的存款人承擔，而不是整個協議。</p>
+          </li>
+        </ol>
+      </section>
+
+      <section class="block" id="roles">
+        <h2>角色</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>角色</th><th>做什麼</th><th>賺什麼或承擔什麼</th></tr></thead>
+            <tbody>
+              <tr><td>存款人</td><td>把資產借給市場</td><td>賺借款人付的利息；承擔預言機、壞帳與 Vault 管理者風險</td></tr>
+              <tr><td>借款人</td><td>抵押資產、借出其他資產</td><td>取得流動性；承擔利息成本與被清算的風險</td></tr>
+              <tr><td>管理者（curator）</td><td>為 Vault 選擇市場並分配資金</td><td>可能收取績效費 <span class="verify">待查證</span>；其選擇直接影響存款人風險</td></tr>
+              <tr><td>清算者</td><td>清算不健康的部位</td><td>賺清算折價獎勵，承擔搶不到或價格波動的風險</td></tr>
+              <tr><td>預言機提供者</td><td>提供抵押品與借出資產的價格</td><td>價格失準會讓市場錯誤清算或無法清算</td></tr>
+              <tr><td>治理</td><td>核准可用的 LLTV 與 IRM 選項</td><td>不能更改已建立市場的參數</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="block" id="risks">
+        <h2>風險</h2>
+        <ul class="risks">
+          <li><span class="tag tag-oracle">預言機</span><div><p><strong>預言機失效或被操縱</strong>市場參數不能改，若預言機出問題，這個市場會長期受影響，沒有管理員可以替它換掉。</p></div></li>
+          <li><span class="tag tag-liquidity">流動性</span><div><p><strong>隔離市場內的壞帳</strong>隔離設計讓壞帳不外溢，但代價是出事的那個市場，存款人要自己吸收損失。</p></div></li>
+          <li><span class="tag tag-gov">治理</span><div><p><strong>Vault 管理者風險</strong>存進 Vault 等於把「選哪些市場」的判斷交給管理者，分配不當或選到高風險市場，都由存款人承擔。</p></div></li>
+          <li><span class="tag tag-market">市場</span><div><p><strong>借款人被清算</strong>抵押品下跌或波動劇烈時，可能被清算並損失折價獎勵的部分。借得越接近 LLTV，緩衝越小。</p></div></li>
+          <li><span class="tag tag-contract">智能合約</span><div><p><strong>不可變也不可修補</strong>核心合約不可變，降低了管理員作惡的風險，但也代表發現漏洞時無法直接升級修補。</p></div></li>
+        </ul>
+      </section>
+
+      <section class="block" id="myths">
+        <h2>常見誤解</h2>
+        <div class="myth">
+          <p class="wrong"><b>誤解</b>協議不可變，所以沒有風險。</p>
+          <p class="right"><b>事實</b>不可變降低的是治理與管理員風險。預言機、管理者與隔離市場壞帳的風險依然存在。</p>
+        </div>
+        <div class="myth">
+          <p class="wrong"><b>誤解</b>Morpho 只是疊在 Aave 或 Compound 上的優化器。</p>
+          <p class="right"><b>事實</b>Morpho 早期確實是疊在其他協議上的 Optimizer，現在主力是獨立的 Blue 市場與 Vault，兩者是不同產品。</p>
+        </div>
+        <div class="myth">
+          <p class="wrong"><b>誤解</b>存進 Vault 就等於分散到所有市場。</p>
+          <p class="right"><b>事實</b>Vault 只會分配到管理者選定的市場，風險高低取決於他選了哪些，不是整個協議的平均。</p>
+        </div>
+      </section>
+
+      <section class="block" id="refs">
+        <h2>延伸閱讀</h2>
+        <ol class="refs">
+          <li><a href="https://docs.morpho.org/learn/concepts/blue/">Variable Rate Market (Morpho Blue)</a>，Morpho Docs，存取日 2026-11-15<span class="ref-note">市場命名格式與五個參數，是本頁流程的主要依據。</span></li>
+          <li><a href="https://docs.morpho.org/concepts/morpho-blue/">Morpho Blue 概念說明</a>，Morpho Docs，存取日 2026-11-15<span class="ref-note">permissionless 建立市場與參數固定的設計。</span></li>
+          <li><a href="https://docs.morpho.org/contracts/morpho-blue/">Morpho Blue 合約文件</a>，Morpho Docs，存取日 2026-11-15<span class="ref-note">核心合約是不可變的超額抵押借貸。</span></li>
+          <li><a href="https://mixbytes.io/blog/modern-defi-lending-protocols-how-its-made-morpho-blue">Modern DeFi Lending Protocols: How It’s Made — Morpho Blue</a>，MixBytes，存取日 2026-11-15<span class="ref-note">第三方對設計的技術解說。</span></li>
+          <li><a href="https://thisiskristian.substack.com/p/morpho-a-protocol-autopsy">Morpho: A Protocol Autopsy</a>，Kristian，存取日 2026-11-15<span class="ref-note">對風險的整理，預言機、管理者與隔離壞帳。</span></li>
+        </ol>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>資訊截止日：2026-11-15。協議與交易所規則常變動，請以官方文件為準。</p>
+    <p>本站為課程學習紀錄，不構成任何投資建議。標示「待查證」的內容尚未取得可靠來源。</p>
+  </footer>
+</body>
+</html>

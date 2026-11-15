@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- TODO: 標題格式「機制中文名 英文名｜機制解剖室」 -->
+  <title>機制名稱 English Name｜機制解剖室</title>
+  <!-- TODO: 一句話描述這個機制 -->
+  <meta name="description" content="一句話描述。">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@500;700&display=swap">
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="../index.html">機制解剖室</a>
+    <nav><a href="../index.html">所有標本</a></nav>
+  </header>
+
+  <main class="page">
+    <header class="specimen-head">
+      <h1>機制中文名 English Name</h1>
+      <!-- TODO: 一句話比喻，且要能對應到流程 -->
+      <p class="metaphor">一句話比喻。</p>
+      <p class="lede">兩到四句，說明這個機制要解決什麼問題。</p>
+      <dl class="specimen-card">
+        <div><dt>類別</dt><dd>衍生品 / 借貸 / 交易策略 / 區塊鏈基礎設施</dd></div>
+        <div><dt>難度</dt><dd>入門 或 進階</dd></div>
+        <div><dt>資訊截止日</dt><dd>YYYY-MM-DD</dd></div>
+        <div><dt>最後更新</dt><dd>YYYY-MM-DD</dd></div>
+      </dl>
+    </header>
+
+    <nav class="toc" aria-label="本頁目錄">
+      <ul>
+        <li><a href="#flow">流程圖</a></li>
+        <li><a href="#roles">角色</a></li>
+        <li><a href="#risks">風險</a></li>
+        <li><a href="#myths">常見誤解</a></li>
+        <li><a href="#refs">延伸閱讀</a></li>
+      </ul>
+    </nav>
+
+    <div class="content">
+
+      <!-- 區塊 1：流程圖（3 到 7 步；data-actor 只能是 user / protocol / bot / infra） -->
+      <section class="block" id="flow">
+        <h2>流程圖</h2>
+        <ul class="legend">
+          <li class="l-user">使用者</li>
+          <li class="l-protocol">協議或交易所</li>
+          <li class="l-bot">套利者或機器人</li>
+          <li class="l-infra">基礎設施</li>
+        </ul>
+        <ol class="flow">
+          <li class="flow-step" data-actor="user">
+            <span class="actor">使用者</span>
+            <h3>步驟標題</h3>
+            <p>一到兩句說明，標出資金或資訊往哪裡流。</p>
+          </li>
+          <li class="flow-step" data-actor="protocol">
+            <span class="actor">協議</span>
+            <h3>步驟標題</h3>
+            <p>說明。</p>
+          </li>
+          <li class="flow-step" data-actor="bot">
+            <span class="actor">機器人</span>
+            <h3>步驟標題</h3>
+            <p>說明。</p>
+          </li>
+        </ol>
+      </section>
+
+      <!-- 區塊 2：角色（至少 3 列） -->
+      <section class="block" id="roles">
+        <h2>角色</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>角色</th><th>做什麼</th><th>賺什麼或承擔什麼</th></tr></thead>
+            <tbody>
+              <tr><td>角色 A</td><td>說明</td><td>說明</td></tr>
+              <tr><td>角色 B</td><td>說明</td><td>說明</td></tr>
+              <tr><td>角色 C</td><td>說明</td><td>說明</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 區塊 3：風險（至少 3 項；標籤只能用 AGENTS.md 第 4 節列出的類型） -->
+      <section class="block" id="risks">
+        <h2>風險</h2>
+        <ul class="risks">
+          <li><span class="tag tag-market">市場</span><div><p><strong>風險名稱</strong>說明。</p></div></li>
+          <li><span class="tag tag-contract">智能合約</span><div><p><strong>風險名稱</strong>說明。</p></div></li>
+          <li><span class="tag tag-liquidity">流動性</span><div><p><strong>風險名稱</strong>說明。</p></div></li>
+        </ul>
+      </section>
+
+      <!-- 區塊 4：常見誤解（至少 2 組） -->
+      <section class="block" id="myths">
+        <h2>常見誤解</h2>
+        <div class="myth">
+          <p class="wrong"><b>誤解</b>錯誤的說法。</p>
+          <p class="right"><b>事實</b>正確的說法。</p>
+        </div>
+        <div class="myth">
+          <p class="wrong"><b>誤解</b>錯誤的說法。</p>
+          <p class="right"><b>事實</b>正確的說法。</p>
+        </div>
+      </section>
+
+      <!-- 區塊 5：延伸閱讀（至少 3 筆；網址只能用實際出現過的連結） -->
+      <section class="block" id="refs">
+        <h2>延伸閱讀</h2>
+        <ol class="refs">
+          <li><a href="https://example.com">《標題》</a>，機構或作者，存取日 YYYY-MM-DD<span class="ref-note">這筆資料用在本頁哪一段。</span></li>
+          <li><a href="https://example.com">《標題》</a>，機構或作者，存取日 YYYY-MM-DD<span class="ref-note">說明。</span></li>
+          <li><a href="https://example.com">《標題》</a>，機構或作者，存取日 YYYY-MM-DD<span class="ref-note">說明。</span></li>
+        </ol>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>資訊截止日：YYYY-MM-DD。協議與交易所規則常變動，請以官方文件為準。</p>
+    <p>本站為課程學習紀錄，不構成任何投資建議。標示「待查證」的內容尚未取得可靠來源。</p>
+  </footer>
+</body>
+</html>

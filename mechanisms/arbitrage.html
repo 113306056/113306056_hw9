@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>套利 Arbitrage｜機制解剖室</title>
+  <meta name="description" content="從發現價差到價差消失：加密市場裡的套利怎麼運作。">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@500;700&display=swap">
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="../index.html">機制解剖室</a>
+    <nav><a href="../index.html">所有標本</a></nav>
+  </header>
+
+  <main class="page">
+    <header class="specimen-head">
+      <h1>套利 Arbitrage</h1>
+      <p class="metaphor">同一件商品在兩個攤位標價不同，有人低買高賣，直到兩邊價格一樣，這件事才結束。</p>
+      <p class="lede">套利靠的是同一資產在不同市場、不同形式之間的價差。套利者的動作會把價差抹平，所以它既是市場價格趨於一致的原因，也是機會很快消失的原因。在鏈上，套利還常和區塊排序、手續費競價綁在一起。</p>
+      <dl class="specimen-card">
+        <div><dt>類別</dt><dd>交易策略</dd></div>
+        <div><dt>難度</dt><dd>入門</dd></div>
+        <div><dt>資訊截止日</dt><dd>2026-11-15</dd></div>
+        <div><dt>最後更新</dt><dd>2026-11-15</dd></div>
+      </dl>
+    </header>
+
+    <nav class="toc" aria-label="本頁目錄">
+      <ul>
+        <li><a href="#flow">流程圖</a></li>
+        <li><a href="#roles">角色</a></li>
+        <li><a href="#risks">風險</a></li>
+        <li><a href="#myths">常見誤解</a></li>
+        <li><a href="#refs">延伸閱讀</a></li>
+      </ul>
+    </nav>
+
+    <div class="content">
+
+      <section class="block" id="flow">
+        <h2>流程圖</h2>
+        <ul class="legend">
+          <li class="l-user">使用者</li>
+          <li class="l-protocol">協議或交易所</li>
+          <li class="l-bot">套利者或機器人</li>
+          <li class="l-infra">基礎設施</li>
+        </ul>
+        <ol class="flow">
+          <li class="flow-step" data-actor="protocol">
+            <span class="actor">市場</span>
+            <h3>兩個地方出現價差</h3>
+            <p>例如同一代幣在中心化交易所與去中心化交易所（DEX）報價不同，或兩個 DEX 的流動性池價格不同。</p>
+          </li>
+          <li class="flow-step" data-actor="bot">
+            <span class="actor">套利者</span>
+            <h3>扣掉成本，算淨利</h3>
+            <p>把手續費、鏈上 gas、滑價與轉帳時間都算進去。價差小於成本就不會動手。</p>
+          </li>
+          <li class="flow-step" data-actor="bot">
+            <span class="actor">套利者</span>
+            <h3>兩條腿同時執行</h3>
+            <p>在便宜處買、貴處賣。在鏈上可以把兩筆交易包進同一筆交易，任何一步失敗就整筆回滾，避免只成交一半。</p>
+          </li>
+          <li class="flow-step" data-actor="infra">
+            <span class="actor">區塊建構者</span>
+            <h3>交易被排進區塊</h3>
+            <p>多個套利者搶同一個機會時，通常是願意付更高小費的人排在前面，詳見 <a href="mev.html">MEV</a> 頁。</p>
+          </li>
+          <li class="flow-step" data-actor="protocol">
+            <span class="actor">市場</span>
+            <h3>價差收斂，機會消失</h3>
+            <p>買進的一邊價格上升、賣出的一邊價格下降，兩邊趨於一致。慢一步的人面對的是已經被抹平的價差。</p>
+          </li>
+        </ol>
+
+        <h3>常見的套利形態</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>形態</th><th>價差來源</th><th>延伸頁面</th></tr></thead>
+            <tbody>
+              <tr><td>跨市場套利</td><td>同一資產在中心化交易所與 DEX、或不同 DEX 之間的報價差</td><td>本頁</td></tr>
+              <tr><td>三角套利</td><td>三種資產兌換比率不一致，繞一圈回到原資產而多出一點</td><td>本頁</td></tr>
+              <tr><td>基差與費率套利</td><td>合約價格與現貨之間的價差，以及資金費率</td><td><a href="funding-rate.html">資金費率</a></td></tr>
+              <tr><td>借貸循環</td><td>借款成本與抵押品收益之間的利差，用槓桿放大</td><td><a href="morpho.html">Morpho</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="example">
+          <p><strong>閃電貸（flash loan）：</strong>一種在單一交易內借出並還款的借貸方式，若交易結束時沒還清，整筆交易會被回滾，因此套利者即使手上沒有本金也能執行鏈上套利。各協議的費用與限制不同 <span class="verify">待查證</span>。</p>
+        </div>
+      </section>
+
+      <section class="block" id="roles">
+        <h2>角色</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>角色</th><th>做什麼</th><th>賺什麼或承擔什麼</th></tr></thead>
+            <tbody>
+              <tr><td>套利者</td><td>偵測價差並下單，常由機器人執行</td><td>賺扣除成本後的價差；承擔執行失敗、成本與競爭</td></tr>
+              <tr><td>交易所與 DEX</td><td>提供被拿來比價的市場與流動性</td><td>套利讓價格更貼近其他市場，也帶來交易量與手續費</td></tr>
+              <tr><td>流動性提供者</td><td>把資產放進池子讓人兌換</td><td>賺手續費；池子價格落後市場時，套利者會從中取得價差，這是流動性提供者的隱性成本 <span class="verify">待查證</span></td></tr>
+              <tr><td>區塊建構者與驗證者</td><td>決定交易排序並收取小費</td><td>競爭激烈時，套利者可能把大部分利潤以小費付出</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="block" id="risks">
+        <h2>風險</h2>
+        <ul class="risks">
+          <li><span class="tag tag-market">市場</span><div><p><strong>只成交一條腿</strong>跨平台套利很難同時成交兩邊。一邊成交、另一邊價格跑掉，原本的對沖就變成單邊曝險。</p></div></li>
+          <li><span class="tag tag-market">市場</span><div><p><strong>成本吃掉價差</strong>手續費、gas、滑價和資金占用都會侵蝕利潤，小價差常常扣完成本就沒有了。</p></div></li>
+          <li><span class="tag tag-market">市場</span><div><p><strong>被別人搶先</strong>同一個價差會有很多機器人在搶，慢一步就只剩虧損的手續費。一般研究指出競爭激烈時利潤多半被排序費用分走，確切比例待查證 <span class="verify">待查證</span>。</p></div></li>
+          <li><span class="tag tag-contract">智能合約</span><div><p><strong>自寫合約的漏洞</strong>套利機器人常搭配自己部署的合約，程式有漏洞就可能被他人利用，資金直接受損。</p></div></li>
+          <li><span class="tag tag-platform">平台</span><div><p><strong>提領與轉帳延遲</strong>需要在交易所之間搬資金時，轉帳時間與提領限制會讓價差在搬完前就消失。</p></div></li>
+        </ul>
+      </section>
+
+      <section class="block" id="myths">
+        <h2>常見誤解</h2>
+        <div class="myth">
+          <p class="wrong"><b>誤解</b>套利就是沒有風險的賺錢。</p>
+          <p class="right"><b>事實</b>理論上的套利假設兩腿同時成交且沒有成本。現實中有執行、成本、競爭與平台風險，很多所謂的套利其實是承擔風險的利差交易。</p>
+        </div>
+        <div class="myth">
+          <p class="wrong"><b>誤解</b>看到兩邊價差，就能直接賺到那個差額。</p>
+          <p class="right"><b>事實</b>要先扣除所有成本，並且確認自己有辦法比其他人更快成交，否則價差是看得到、拿不到。</p>
+        </div>
+        <div class="myth">
+          <p class="wrong"><b>誤解</b>借貸循環放大收益，也算套利。</p>
+          <p class="right"><b>事實</b>它是用槓桿賺借款成本與收益的利差，利差轉負或抵押品價格下跌時會被清算，風險與傳統套利不同。</p>
+        </div>
+      </section>
+
+      <section class="block" id="refs">
+        <h2>延伸閱讀</h2>
+        <ol class="refs">
+          <li><a href="https://www.spark.money/research/ethereum-mev-pbs-validator-economics">MEV and Proposer-Builder Separation: How Ethereum Validators Actually Make Money</a>，Spark，存取日 2026-11-15<span class="ref-note">搜尋者、建構者的分工，以及競爭下利潤如何被分走。</span></li>
+          <li><a href="https://thedefiant.io/education/blockchains/what-is-maximal-extractable-value-mev">What is Maximal Extractable Value (MEV)?</a>，The Defiant，存取日 2026-11-15<span class="ref-note">套利與清算如何出現在區塊排序的脈絡中。</span></li>
+          <li><a href="https://zerocap.com/insights/research-lab/maximal-extractable-value/">Maximal Extractable Value: Concepts, issues and solutions</a>，Zerocap，2023，存取日 2026-11-15<span class="ref-note">套利、清算與三明治攻擊的比較。</span></li>
+          <li><a href="https://www.bit.com/knowledge-hub/funding-rate">BIT Knowledge Hub：Funding Rate</a>，BIT，存取日 2026-11-15<span class="ref-note">基差與費率套利的基本結構。</span></li>
+        </ol>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>資訊截止日：2026-11-15。協議與交易所規則常變動，請以官方文件為準。</p>
+    <p>本站為課程學習紀錄，不構成任何投資建議。標示「待查證」的內容尚未取得可靠來源。</p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>資金費率 Funding Rate｜機制解剖室</title>
+  <meta name="description" content="永續合約如何靠多空互相付款，讓價格不偏離現貨。">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@500;700&display=swap">
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="../index.html">機制解剖室</a>
+    <nav><a href="../index.html">所有標本</a></nav>
+  </header>
+
+  <main class="page">
+    <header class="specimen-head">
+      <h1>資金費率 Funding Rate</h1>
+      <p class="metaphor">永續合約與現貨之間的一條拔河繩：合約被拉得太貴，多方就得付錢給空方，把價格拉回現貨。</p>
+      <p class="lede">傳統期貨有到期日，到期時價格會自然收斂到現貨。永續合約（perpetual futures）沒有到期日，需要另一套機制防止合約價格長期脫離現貨指數。多數平台的做法是讓多空雙方定期互相付款，這筆款項就是資金費率。</p>
+      <dl class="specimen-card">
+        <div><dt>類別</dt><dd>衍生品</dd></div>
+        <div><dt>難度</dt><dd>入門</dd></div>
+        <div><dt>資訊截止日</dt><dd>2026-11-15</dd></div>
+        <div><dt>最後更新</dt><dd>2026-11-15</dd></div>
+      </dl>
+    </header>
+
+    <nav class="toc" aria-label="本頁目錄">
+      <ul>
+        <li><a href="#flow">流程圖</a></li>
+        <li><a href="#roles">角色</a></li>
+        <li><a href="#risks">風險</a></li>
+        <li><a href="#myths">常見誤解</a></li>
+        <li><a href="#refs">延伸閱讀</a></li>
+      </ul>
+    </nav>
+
+    <div class="content">
+
+      <section class="block" id="flow">
+        <h2>流程圖</h2>
+        <ul class="legend">
+          <li class="l-user">使用者</li>
+          <li class="l-protocol">協議或交易所</li>
+          <li class="l-bot">套利者或機器人</li>
+          <li class="l-infra">基礎設施</li>
+        </ul>
+        <ol class="flow">
+          <li class="flow-step" data-actor="user">
+            <span class="actor">交易者</span>
+            <h3>永續合約價格偏離現貨指數</h3>
+            <p>看漲的人湧入做多，合約價格高於現貨指數，稱為正溢價（premium）；反過來則是負溢價。</p>
+          </li>
+          <li class="flow-step" data-actor="protocol">
+            <span class="actor">交易所</span>
+            <h3>取樣溢價指數（Premium Index）</h3>
+            <p>平台定期取樣合約價格與指數的差距再取平均。取樣頻率因平台而異，例如 Hyperliquid 每 5 秒取樣並以一小時平均。</p>
+          </li>
+          <li class="flow-step" data-actor="protocol">
+            <span class="actor">交易所</span>
+            <h3>代入公式算出費率</h3>
+            <p>常見形式是溢價加上一個被限制範圍的利率項，見下方公式。多數主流平台的利率項預設為每 8 小時 0.01%。</p>
+          </li>
+          <li class="flow-step" data-actor="protocol">
+            <span class="actor">交易所</span>
+            <h3>結算時點，多空互相轉帳</h3>
+            <p>費率為正時，多方付款給空方；為負時反過來。金額約為持倉名目價值乘以費率，且只有在結算時點仍持倉的人才會收付。</p>
+          </li>
+          <li class="flow-step" data-actor="bot">
+            <span class="actor">套利者</span>
+            <h3>誘因出現，價格被拉回</h3>
+            <p>費率偏高時，有人買現貨並做空合約來收取費率，空單的賣壓會把合約價格往下拉，溢價縮小，費率隨之下降。</p>
+          </li>
+        </ol>
+
+        <h3>公式</h3>
+        <pre class="formula">F = P + clamp( I − P , −0.05% , +0.05% )
+
+F  資金費率（以 8 小時為單位）
+P  平均溢價指數
+I  利率項，常見為 0.01%</pre>
+        <p>這個形式在多家平台的說明文件中都能看到，但細節（取樣方式、費率上下限、結算頻率）各平台不同，下單前請看該平台的合約規格。</p>
+
+        <div class="example">
+          <p><strong>算算看：</strong>名目價值 $100,000 的多單，若該期費率為 0.03%，多方要付 $30 給空方。若只有利率項 0.01% 且溢價為零，費率約為每天 0.03%，換算年化約 11%。</p>
+        </div>
+      </section>
+
+      <section class="block" id="roles">
+        <h2>角色</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>角色</th><th>做什麼</th><th>賺什麼或承擔什麼</th></tr></thead>
+            <tbody>
+              <tr><td>多方</td><td>買進合約押價格上漲</td><td>溢價為正時要付費率；價格漲了才有價差收益</td></tr>
+              <tr><td>空方</td><td>賣出合約押價格下跌或做對沖</td><td>溢價為正時收到費率；價格急漲時有被強平的風險</td></tr>
+              <tr><td>交易所或協議</td><td>計算並執行結算</td><td>多數平台的資金費在多空之間轉移，平台通常不從中抽成，但各平台規則不同 <span class="verify">待查證</span></td></tr>
+              <tr><td>基差套利者</td><td>現貨與合約反向持倉，收取費率</td><td>賺費率，承擔費率翻負、保證金與平台風險</td></tr>
+              <tr><td>指數提供者</td><td>提供現貨指數作為對照基準</td><td>指數失真會直接影響費率與強平</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="block" id="risks">
+        <h2>風險</h2>
+        <ul class="risks">
+          <li><span class="tag tag-market">市場</span><div><p><strong>費率會翻負</strong>市場情緒轉向時，原本收費率的策略會變成付費率。看到過去的高年化數字，不代表之後還會繼續。</p></div></li>
+          <li><span class="tag tag-liquidity">流動性</span><div><p><strong>空單腿被強平</strong>即使整體是對沖部位，價格急漲時合約帳戶的保證金可能先被耗盡，被強制平倉後對沖就不完整了。</p></div></li>
+          <li><span class="tag tag-platform">平台</span><div><p><strong>交易所風險</strong>資金放在中心化交易所時，要承擔平台凍結、破產或提領限制的風險。</p></div></li>
+          <li><span class="tag tag-market">市場</span><div><p><strong>成本吃掉淨利</strong>手續費、買賣價差、滑價與資金占用都要扣掉，帳面年化高不等於淨報酬高。</p></div></li>
+          <li><span class="tag tag-oracle">預言機</span><div><p><strong>指數失真</strong>指數價格若被操縱或延遲，費率與強平價格都會被影響。</p></div></li>
+        </ul>
+      </section>
+
+      <section class="block" id="myths">
+        <h2>常見誤解</h2>
+        <div class="myth">
+          <p class="wrong"><b>誤解</b>資金費率是交易所收的手續費。</p>
+          <p class="right"><b>事實</b>在多數平台，它是多空雙方之間的轉帳，不是交易所的交易手續費。實際規則依平台而定 <span class="verify">待查證</span>。</p>
+        </div>
+        <div class="myth">
+          <p class="wrong"><b>誤解</b>費率為正，就代表價格會繼續漲。</p>
+          <p class="right"><b>事實</b>正費率只表示合約目前比現貨貴、多方較擁擠，它描述現況，不是價格預測。</p>
+        </div>
+        <div class="myth">
+          <p class="wrong"><b>誤解</b>現貨加空單收費率，是沒有風險的套利。</p>
+          <p class="right"><b>事實</b>這是基差策略，仍有費率翻負、強平、平台與成本風險。</p>
+        </div>
+      </section>
+
+      <section class="block" id="refs">
+        <h2>延伸閱讀</h2>
+        <ol class="refs">
+          <li><a href="https://hyperliquid.gitbook.io/hyperliquid-docs/trading/funding.md">Hyperliquid 資金費率說明文件</a>，Hyperliquid，存取日 2026-11-15<span class="ref-note">公式、5 秒取樣、每小時結算為八小時費率的八分之一。</span></li>
+          <li><a href="https://www.bit.com/knowledge-hub/funding-rate">BIT Knowledge Hub：Funding Rate</a>，BIT，存取日 2026-11-15<span class="ref-note">溢價指數加利率項的結構，與 $100,000 倉位的付款範例。</span></li>
+          <li><a href="https://www.bitmex.com/blog/2025q3-derivatives-report">《The Anchor and the Ceiling》2025 Q3 衍生品報告</a>，BitMEX，存取日 2026-11-15<span class="ref-note">解釋 0.01% 利率項如何讓費率長期偏正。</span></li>
+          <li><a href="https://www.spark.money/tools/funding-rate-comparison">Crypto Funding Rate Comparison Across Exchanges</a>，Spark，存取日 2026-11-15<span class="ref-note">比較各平台結算頻率與取樣方式。</span></li>
+          <li><a href="https://docs.coinmetrics.io/market-data/market-data-overview/funding-rates/funding-rates">Funding Rates 資料說明</a>，Coin Metrics，存取日 2026-11-15<span class="ref-note">費率的資料定義，適合做後續分析時參考。</span></li>
+        </ol>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p>資訊截止日：2026-11-15。協議與交易所規則常變動，請以官方文件為準。</p>
+    <p>本站為課程學習紀錄，不構成任何投資建議。標示「待查證」的內容尚未取得可靠來源。</p>
+  </footer>
+</body>
+</html>
