@@ -1,4 +1,4 @@
-# 機制解剖室 Crypto Mechanism Lab
+# 區塊鏈機制解剖室 Crypto Mechanism Lab
 
 把加密貨幣與 DeFi 的機制拆成固定格式：**流程圖、角色、風險、常見誤解、延伸閱讀**。
 
